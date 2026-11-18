@@ -1,0 +1,214 @@
+{
+  "id": "shell",
+  "name": "%plugin.name%",
+  "version": "0.1.0",
+  "vendor": "Lemon Paperplane",
+  "description": "%plugin.description%",
+  "icon": "icons/shell.svg",
+  "category": "tool",
+  "engines": {
+    "paperplane": ">=0.1.0 <0.2.0"
+  },
+  "protocol": 1,
+  "executable": "bin/paperplane-plugin-shell",
+  "contributes": {
+    "runConfigurationTypes": [
+      {
+        "id": "script",
+        "name": "%run.script%",
+        "icon": "icons/script.svg",
+        "anyModule": true,
+        "options": [
+          {
+            "key": "file",
+            "title": "%opt.file%",
+            "type": "path",
+            "required": true,
+            "info": "%opt.file.info%"
+          },
+          {
+            "key": "args",
+            "title": "%opt.args%",
+            "type": "string",
+            "info": "%opt.args.info%"
+          },
+          {
+            "key": "interpreter",
+            "title": "%opt.interpreter%",
+            "type": "select",
+            "default": "auto",
+            "info": "%opt.interpreter.info%",
+            "options": [
+              {
+                "value": "auto",
+                "label": "%opt.interpreter.auto%"
+              },
+              {
+                "value": "direct",
+                "label": "%opt.interpreter.direct%"
+              },
+              {
+                "value": "bash",
+                "label": "bash"
+              },
+              {
+                "value": "zsh",
+                "label": "zsh"
+              },
+              {
+                "value": "sh",
+                "label": "sh"
+              },
+              {
+                "value": "python",
+                "label": "Python"
+              },
+              {
+                "value": "node",
+                "label": "Node.js"
+              },
+              {
+                "value": "ruby",
+                "label": "Ruby"
+              },
+              {
+                "value": "perl",
+                "label": "Perl"
+              },
+              {
+                "value": "php",
+                "label": "PHP"
+              },
+              {
+                "value": "pwsh",
+                "label": "PowerShell"
+              }
+            ]
+          },
+          {
+            "key": "cwd",
+            "title": "%opt.cwd%",
+            "type": "path",
+            "advanced": true,
+            "info": "%opt.cwd.script.info%"
+          }
+        ]
+      },
+      {
+        "id": "command",
+        "name": "%run.command%",
+        "icon": "icons/shell.svg",
+        "anyModule": true,
+        "options": [
+          {
+            "key": "command",
+            "title": "%opt.command%",
+            "type": "code",
+            "language": "shell",
+            "required": true,
+            "info": "%opt.command.info%"
+          },
+          {
+            "key": "cwd",
+            "title": "%opt.cwd%",
+            "type": "path",
+            "info": "%opt.cwd.command.info%"
+          },
+          {
+            "key": "shell",
+            "title": "%opt.shell%",
+            "type": "select",
+            "default": "auto",
+            "advanced": true,
+            "info": "%opt.shell.info%",
+            "options": [
+              {
+                "value": "auto",
+                "label": "%opt.shell.auto%"
+              },
+              {
+                "value": "zsh",
+                "label": "zsh"
+              },
+              {
+                "value": "bash",
+                "label": "bash"
+              },
+              {
+                "value": "sh",
+                "label": "sh"
+              },
+              {
+                "value": "pwsh",
+                "label": "PowerShell"
+              },
+              {
+                "value": "cmd",
+                "label": "cmd"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "urlPatterns": [
+      {
+        "hint": "://",
+        "pattern": "(https?://(?:localhost|127\\.0\\.0\\.1|0\\.0\\.0\\.0|\\[::1\\]):\\d{2,5}[^\\s'\"<>)\\]]*)",
+        "ready": true
+      }
+    ],
+    "diagnostics": [
+      {
+        "id": "shell.permission",
+        "hint": "ermission denied",
+        "pattern": "(?i)\\bpermission denied\\b",
+        "severity": "error",
+        "title": "%diag.permission.title%",
+        "message": "%diag.permission.message%",
+        "fixes": [
+          {
+            "id": "chmod",
+            "title": "%fix.chmod%",
+            "kind": "custom",
+            "recommended": true,
+            "confirm": "%fix.chmod.confirm%"
+          },
+          {
+            "id": "useSh",
+            "title": "%fix.useSh%",
+            "kind": "setRunOption",
+            "params": {
+              "key": "interpreter",
+              "value": "sh"
+            }
+          }
+        ]
+      },
+      {
+        "id": "shell.no-interpreter",
+        "hint": "No such file or directory",
+        "pattern": "env: ['\"]?([\\w.+-]+)['\"]?: No such file or directory",
+        "severity": "error",
+        "title": "%diag.noInterpreter.title%",
+        "message": "%diag.noInterpreter.message%"
+      },
+      {
+        "id": "shell.command-not-found",
+        "hint": "command not found",
+        "pattern": "\\bcommand not found: ([\\w@./+-]+)",
+        "severity": "error",
+        "title": "%diag.commandNotFound.title%",
+        "message": "%diag.commandNotFound.message%"
+      },
+      {
+        "id": "shell.command-not-found-sh",
+        "hint": "not found",
+        "pattern": "(?:^|\\s)(?:bash|sh|dash)(?:\\[\\d+\\])?:\\s+(?:\\d+:\\s+|line \\d+:\\s+)?([\\w@./+-]+): (?:command )?not found",
+        "severity": "error",
+        "title": "%diag.commandNotFound.title%",
+        "message": "%diag.commandNotFound.message%"
+      }
+    ]
+  }
+}
