@@ -48,6 +48,7 @@ func (p *Plugin) PrepareRun(ctx *sdk.Context, in *sdk.PrepareRunParams) (*sdk.La
 			return nil, err
 		}
 		cmd, args := shellCommand(sdk.OptString(opts, OptShell, "auto"), command, runtime.GOOS, os.Getenv("SHELL"))
+		cmd = gitBash(cmd)
 		return &sdk.LaunchSpec{Command: cmd, Args: args, Cwd: cwd, Env: in.Env, StopSignal: "SIGINT", StopTimeoutMs: 5000,
 			Display: commandDisplay(ctx, command)}, nil
 	default: // script
@@ -63,13 +64,15 @@ func (p *Plugin) PrepareRun(ctx *sdk.Context, in *sdk.PrepareRunParams) (*sdk.La
 		if !ok {
 			return nil, sdk.UserError("%s", ctx.T("err.noInterpreter", filepath.Base(abs)))
 		}
+		shown := cmd // 显示用解释器名字，不显示 Git Bash 的完整路径
+		cmd = gitBash(cmd)
 		args = append(args, sdk.SplitArgs(sdk.OptString(opts, OptArgs, ""))...)
 		cwd, err := resolveCwd(ctx, root, sdk.OptString(opts, OptCwd, ""), filepath.Dir(abs))
 		if err != nil {
 			return nil, err
 		}
 		return &sdk.LaunchSpec{Command: cmd, Args: args, Cwd: cwd, Env: in.Env, StopSignal: "SIGINT", StopTimeoutMs: 5000,
-			Display: displayLine(cmd, args, root)}, nil
+			Display: displayLine(shown, args, root)}, nil
 	}
 }
 
@@ -255,7 +258,11 @@ func shellCommand(shell, command, goos, userShell string) (string, []string) {
 		return shell, []string{"-c", command}
 	}
 	if goos == "windows" {
-		return "powershell", []string{"-NoProfile", "-Command", command}
+		// 有 PowerShell 7 就用它（支持 && ||）；Windows PowerShell 5.1 不认 &&，退回 cmd，多行命令逐行执行
+		if hasPwsh() {
+			return "pwsh", []string{"-NoProfile", "-Command", command}
+		}
+		return "cmd", []string{"/d", "/s", "/c", cmdLines(command)}
 	}
 	if userShell == "" {
 		userShell = "/bin/sh"
