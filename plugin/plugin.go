@@ -49,7 +49,7 @@ func (p *Plugin) PrepareRun(ctx *sdk.Context, in *sdk.PrepareRunParams) (*sdk.La
 		}
 		cmd, args := shellCommand(sdk.OptString(opts, OptShell, "auto"), command, runtime.GOOS, os.Getenv("SHELL"))
 		cmd = gitBash(cmd)
-		return &sdk.LaunchSpec{Command: cmd, Args: args, Cwd: cwd, Env: in.Env, StopSignal: "SIGINT", StopTimeoutMs: 5000,
+		return &sdk.LaunchSpec{Command: cmd, Args: args, Cwd: cwd, Env: in.Env, StopSignal: "SIGINT", StopTimeoutMs: 5000, Terminal: true,
 			Display: commandDisplay(ctx, command)}, nil
 	default: // script
 		file := strings.TrimSpace(sdk.OptString(opts, OptFile, ""))
@@ -71,7 +71,7 @@ func (p *Plugin) PrepareRun(ctx *sdk.Context, in *sdk.PrepareRunParams) (*sdk.La
 		if err != nil {
 			return nil, err
 		}
-		return &sdk.LaunchSpec{Command: cmd, Args: args, Cwd: cwd, Env: in.Env, StopSignal: "SIGINT", StopTimeoutMs: 5000,
+		return &sdk.LaunchSpec{Command: cmd, Args: args, Cwd: cwd, Env: in.Env, StopSignal: "SIGINT", StopTimeoutMs: 5000, Terminal: true,
 			Display: displayLine(shown, args, root)}, nil
 	}
 }
